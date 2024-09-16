@@ -1,0 +1,92 @@
+<style>
+    .table-small {
+    max-height: 300px; /* Ajusta la altura máxima según lo necesario */
+    overflow-y: auto; /* Permite el desplazamiento vertical si el contenido excede la altura máxima */
+    font-size: 0.400rem; /* Tamaño de fuente más pequeño para filas más compactas */
+}
+
+.table-small th, .table-small td {
+    padding: 0.5rem; /* Reduce el padding para filas más compactas */
+}
+.table thead th {
+            background-color: #007bff; /* Color de fondo azul */
+            color: white; /* Color de texto blanco */
+            text-align: center; /* Centra el texto */
+            font-weight: bold; /* Texto en negrita */
+        }
+        
+        .table thead th:hover {
+            background-color: #0056b3; /* Color de fondo al pasar el mouse */
+            cursor: pointer; /* Cambia el cursor al pasar el mouse */
+        }
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+.navbar {
+    background-color: #2c3e50;
+    color: white;
+}
+
+.navbar-brand {
+    color: white !important;
+}
+
+.form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Table styles */
+.table-small {
+    max-height: 400px; /* Ajusta la altura máxima según lo necesario */
+    overflow-y: auto; /* Permite el desplazamiento vertical si el contenido excede la altura máxima */
+    font-size: 0.875rem; /* Tamaño de fuente más pequeño para filas más compactas */
+}
+.table thead th {
+            background-color: #007bff; /* Color de fondo azul */
+            color: white; /* Color de texto blanco */
+            text-align: center; /* Centra el texto */
+            font-weight: bold; /* Texto en negrita */
+            border: 1px solid #dee2e6; /* Borde de las celdas de cabecera */
+        }
+
+        .table tbody td {
+            border: 1px solid #dee2e6; /* Borde de las celdas del cuerpo */
+        }
+
+        .table {
+            border-collapse: collapse; /* Colapsa los bordes para evitar dobles bordes */
+            border-spacing: 0; /* Elimina el espacio entre bordes */
+        }
+
+        .table th, .table td {
+            padding: 0.75rem; /* Espaciado interno de celdas */
+        }
+
+        .table thead th:hover {
+            background-color: #0056b3; /* Color de fondo al pasar el mouse */
+            cursor: pointer; /* Cambia el cursor al pasar el mouse */
+        }
+        
+        /* Alternar color de fondo de filas */
+        .table tbody tr:nth-of-type(odd) {
+            background-color: #f2f2f2; /* Color de fondo para filas impares */
+        }
+
+        .table tbody tr:nth-of-type(even) {
+            background-color: #ffffff; /* Color de fondo para filas pares */
+        }
+        
+        /* Ajustar altura de las filas para tablas */
+        .table {
+            font-size: 0.9rem; /* Tamaño de fuente más pequeño */
+        }
+</style>
