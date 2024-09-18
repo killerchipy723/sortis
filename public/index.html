@@ -322,7 +322,7 @@
 
     const idcuota = idcuotaP; // Asegúrate de que `idcuotaP` tiene el valor correcto
     console.log('ID Cuota al enviar el formulario:', idcuota); // Verifica este valor
-
+    
     const importe = document.getElementById('importe').value;
     const formapago = document.getElementById('formapago').value;
     const nrecibo = document.getElementById('recibo').value;
@@ -331,7 +331,7 @@
     const idvendedor = vendedorSelect.value;
     const obs = document.getElementById('observacion').value;
     const estado = document.getElementById('estado').value;
-
+    let vende = vendedorSelect;
     fetch('/update-cuota', {
         method: 'POST',
         headers: {
@@ -353,6 +353,7 @@
         alert(data);
         document.getElementById('form-insert').style.display = 'none';
         verCuotas(idAfil, idPla); 
+        console.log("Nombre del vendedor: ",vende)
     })
     .catch(error => {
         console.error('Error:', error);
