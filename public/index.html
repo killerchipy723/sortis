@@ -257,76 +257,61 @@
         
 
         let idcuotaP = null; // Variable global para almacenar el id de la cuota seleccionada
+        
 
-function verCuotas(idafiliado, idplan) {
-    fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                const cuotasBody = document.getElementById('cuotas-body');
-                cuotasBody.innerHTML = '';
+    function verCuotas(idafiliado, idplan) {
+        fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const cuotasBody = document.getElementById('cuotas-body');
+                    cuotasBody.innerHTML = '';
 
-                data.forEach(cuota => {
-                    const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
-                    const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
+                    data.forEach(cuota => {
+                        const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
+                        const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
 
-                    cuotasBody.innerHTML += `
-                        <tr>
-                            <td>${cuota.idcuota}</td>
-                            <td>${cuota.numcuota}</td>
-                            <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
-                            <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
-                            <td>${cuota.importe}</td>
-                            <td>${cuota.estado}</td>
-                            <td>
-                                <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
-                                    Seleccionar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('cuotas-table-container').style.display = 'block';
-                document.getElementById('form-insert').style.display = 'none';
-                idAfil = idafiliado;
-                idPla = idplan;
-            } else {
-                alert('Cuotas no encontradas.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
-      
-        document.addEventListener('DOMContentLoaded', function() {
-            // Llenar el combobox de vendedores al cargar la página
-            fetch('/get-vendedores')
-                .then(response => response.json())
-                .then(data => {
-                    const vendedorSelect = document.getElementById('vendedor');
-                    vendedorSelect.innerHTML = ''; // Limpiar el contenido existente
-
-                    data.forEach(vendedor => {
-                        const option = document.createElement('option');
-                        option.value = vendedor.idvendedor;
-                        option.textContent = vendedor.apenomb;
-                        vendedorSelect.appendChild(option);
+                        cuotasBody.innerHTML += `
+                            <tr>
+                                <td>${cuota.idcuota}</td>
+                                <td>${cuota.numcuota}</td>
+                                <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
+                                <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
+                                <td>${cuota.importe}</td>
+                                <td>${cuota.estado}</td>
+                                <td>
+                                    <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
+                                        Seleccionar
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
                     });
-                })
-                .catch(error => {
-                    console.error('Error al cargar vendedores:', error);
-                });
-        });
+
+                    document.getElementById('cuotas-table-container').style.display = 'block';
+                    document.getElementById('form-insert').style.display = 'none';
+                    idAfil = idafiliado;
+                    idPla = idplan;
+                } else {
+                    alert('Cuotas no encontradas.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
 
     function seleccionarCuota(event) {
-        const button = event.target;
-        idcuotaP = button.getAttribute('data-id');
-        console.log('ID Cuota desde el botón:', idcuotaP); // Asegúrate de que se muestra el valor correcto
-        document.getElementById('idcuota').value = idcuotaP;
-        document.getElementById('form-insert').style.display = 'block';
+        idcuotaP = event.target.getAttribute('data-id');
+
+        // Mostrar el formulario y hacer scroll hacia él
+        const formInsert = document.getElementById('form-insert');
+        formInsert.style.display = 'block';
+        formInsert.scrollIntoView({ behavior: 'smooth' }); // Hace scroll hasta el formulario de manera suave
+
+        // Colocar el foco en el campo de Importe
+        const importeInput = document.getElementById('importe');
+        importeInput.focus();
     }
 
 
@@ -376,28 +361,63 @@ function verCuotas(idafiliado, idplan) {
 
         
 
-        window.onload = function() {
-            fetch('/get-user-data')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('nombreUsuario').innerText = `Bienvenido, ${data.apenomb}`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+window.onload = function() {
+    // Obtener el nombre del usuario logueado
+    fetch('/get-user-data')
+        .then(response => response.json())
+        .then(data => {
+            // Mostrar el nombre del usuario logueado
+            document.getElementById('nombreUsuario').innerText = `Bienvenido, ${data.apenomb}`;
+            
+            // Obtener el combobox
+            let combobox = document.getElementById('vendedor');
+            
+            // Iterar a través de las opciones del combobox
+            for (let i = 0; i < combobox.options.length; i++) {
+                // Si el texto coincide con el nombre del usuario logueado, seleccionarlo
+                if (combobox.options[i].text === data.apenomb) {
+                    combobox.selectedIndex = i;
+                    break;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+};
 
-            fetch('/get-vendedores')
-                .then(response => response.json())
-                .then(data => {
-                    const vendedorSelect = document.getElementById('vendedor');
-                    data.forEach(vendedor => {
-                        vendedorSelect.innerHTML += `<option value="${vendedor.id}">${vendedor.nombre}</option>`;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                var data = { apenomb: "Juan Perez" };
+   
+    fetch('/get-vendedores')
+    .then(response => response.json())
+    .then(vendedores => {
+        let vendedorSelect = document.getElementById('vendedor');
+        
+        // Limpiar el combobox antes de llenarlo
+        vendedorSelect.innerHTML = '';
+
+        // Llenamos el combobox con los nombres de los vendedores
+        vendedores.forEach(vendedor => {
+            let option = document.createElement('option');
+            option.value = vendedor.idvendedor;  // Aquí estás usando el idvendedor como valor
+            option.textContent = vendedor.apenomb;  // Mostrar el apenomb en el combobox
+            vendedorSelect.appendChild(option);
+        });
+
+        // Seleccionar el valor del vendedor que coincide con el nombre del usuario logueado
+        let opciones = Array.from(vendedorSelect.options);
+        let encontrado = opciones.find(option => option.textContent === data.apenomb);
+
+        if (encontrado) {
+            vendedorSelect.value = encontrado.value;  // Seleccionar el ID correspondiente
+        } else {
+            console.error("No se encontró el nombre del vendedor en las opciones del combobox");
         }
+    })
+    .catch(error => {
+        console.error("Error al cargar vendedores:", error);
+    });
+        
     </script>
 </body>
 </html>

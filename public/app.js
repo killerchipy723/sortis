@@ -149,7 +149,6 @@ app.get('/get-cuotas', async (req, res) => {
     }
 });
 
-// Ruta para obtener los vendedores
 app.get('/get-vendedores', (req, res) => {
     const query = 'SELECT idvendedor, apenomb FROM vendedor';
     
@@ -158,7 +157,7 @@ app.get('/get-vendedores', (req, res) => {
             console.error('Error al obtener vendedores:', err);
             res.status(500).send('Error al obtener vendedores');
         } else {
-            res.json(result.rows);
+            res.json(result.rows);  // En PostgreSQL, se accede a los resultados a través de 'rows'
         }
     });
 });
