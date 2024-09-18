@@ -218,6 +218,77 @@ app.post('/update-cuota', (req, res) => {
     });
 });
 
+// Ruta para generar el PDF
+app.get('/generar-pdf/:idc', async (req, res) => {
+    const idc = req.params.idc;
+    const sql = `SELECT c.idcuota, a.apenomb, c.numcuota, c.estado, c.obs, c.fechavenc, c.importe, c.fechapago 
+                FROM cuotas c 
+                JOIN altaplanafil ap ON c.idalta = ap.idalta 
+                JOIN afiliado a ON ap.idafiliado = a.idafiliado 
+                WHERE c.idcuota = $1`;
+
+    try {
+        const result = await client.query(sql, [idc]);
+
+        if (result.rows.length > 0) {
+            const cuota = result.rows[0];
+
+            // Generar PDF usando PDFKit
+            const doc = new PDFDocument();
+
+            // Ruta donde se va a guardar el archivo PDF
+            const ruta = path.join(__dirname, `OrdenPago-${idc}.pdf`);
+            doc.pipe(fs.createWriteStream(ruta));
+
+            // Dibujar un cuadro alrededor de la página
+            doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+
+            // Título del documento
+            doc.fontSize(18).text('SORTIS-MOTOS', { align: 'left', indent: 30 });
+            doc.text('San José de Metán', { indent: 30 });
+            doc.fontSize(18).text('RECIBO DE PAGO', { align: 'center' });
+
+            // Información de la cuota
+            doc.moveDown().fontSize(12).text(`Identificador: ${idc}`, { align: 'right' });
+            doc.moveDown().text(`Recibí de: ${cuota.apenomb}`);
+            doc.text(`La cantidad de Pesos: $${cuota.importe}`);
+            doc.text(`En concepto de Pago cuota N°: ${cuota.numcuota}`);
+            doc.text(`Fecha de Vencimiento: ${cuota.fechavenc}`);
+            doc.text(`Fecha de Pago: ${cuota.fechapago}`);
+            doc.text(`Estado de la Cuota: ${cuota.estado}`);
+            doc.text(`Observaciones: ${cuota.obs}`);
+
+            // Firma y otros datos
+            doc.moveDown().text('_________________________', { align: 'center' });
+            doc.text('CAJERO', { align: 'center' });
+            doc.text('_________________________', { align: 'right' });
+            doc.text('FIRMA Y SELLO DE LA ENTIDAD', { align: 'right' });
+
+            doc.end();
+
+            // Enviar el archivo PDF generado al cliente
+            res.download(ruta, `OrdenPago-${idc}.pdf`, (err) => {
+                if (err) {
+                    console.error("Error al descargar el PDF: ", err);
+                }
+
+                // Borrar el archivo temporal después de ser descargado
+                fs.unlinkSync(ruta);
+            });
+        } else {
+            res.status(404).send('No se encontró la cuota.');
+        }
+    } catch (err) {
+        console.error("Error al generar el PDF:", err);
+        res.status(500).send('Error en el servidor.');
+    }
+});
+
+// Iniciar servidor
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+});
+
 app.listen(port, '0.0.0.0',() => {
     console.log(`Servidor corriendo en el puerto ${port}`);
 });
