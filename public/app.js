@@ -5,6 +5,9 @@ const { Pool } = require('pg'); // Para conectar a PostgreSQL
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
+const PDFDocument = require('pdfkit'); // Importar PDFKit
+const fs = require('fs'); // Importar el módulo de sistema de archivos
+
 
 // Configurar body-parser para procesar formularios
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,8 +26,8 @@ app.use(session({
 
 // Configurar conexión a PostgreSQL
 const pool = new Pool({
-    user: 'mesa.entrada',
-    host: '192.168.1.3',
+    user: 'postgres',
+    host: 'localhost',
     database: 'sistema',
     password: 'admin',
     port: 5432
@@ -40,6 +43,7 @@ app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     }
 });
+let nombreUsuario = '';
 
 // Ruta para manejar el inicio de sesión
 app.post('/login', async (req, res) => {
@@ -47,11 +51,12 @@ app.post('/login', async (req, res) => {
     
     try {
         // Consulta SQL para verificar usuario y clave
-        const result = await pool.query('SELECT * FROM usuario WHERE usuario = $1 AND clave = $2', [username, password]);
+        const result = await pool.query('SELECT * FROM usuarios WHERE usuario = $1 AND clave = $2', [username, password]);
         
         if (result.rows.length > 0) {
-            // Usuario y contraseña correctos
+            // Usuario y contraseña correctos 
             req.session.user = result.rows[0]; // Guardar usuario en sesión
+            nombreUsuario = result.rows[0].apenomb;
             res.redirect('/index');
         } else {
             // Usuario o contraseña incorrectos
@@ -173,7 +178,7 @@ app.get('/get-cuota/:idCuota', (req, res) => {
         } else {
             res.json(result.rows[0]); // Enviar los datos de la cuota
             console.log('idcuota: ', idCuota);
-        }
+        } 
     });
 });
 
@@ -218,76 +223,131 @@ app.post('/update-cuota', (req, res) => {
     });
 });
 
-// Ruta para generar el PDF
 app.get('/generar-pdf/:idc', async (req, res) => {
     const idc = req.params.idc;
+
+    // Consulta SQL
     const sql = `SELECT c.idcuota, a.apenomb, c.numcuota, c.estado, c.obs, c.fechavenc, c.importe, c.fechapago 
-                FROM cuotas c 
-                JOIN altaplanafil ap ON c.idalta = ap.idalta 
-                JOIN afiliado a ON ap.idafiliado = a.idafiliado 
-                WHERE c.idcuota = $1`;
+                 FROM cuotas c 
+                 JOIN altaplanafil ap ON c.idalta = ap.idalta 
+                 JOIN afiliado a ON ap.idafiliado = a.idafiliado 
+                 WHERE c.idcuota = $1`;
 
     try {
-        const result = await client.query(sql, [idc]);
+        const result = await pool.query(sql, [idc]);
 
         if (result.rows.length > 0) {
             const cuota = result.rows[0];
 
-            // Generar PDF usando PDFKit
-            const doc = new PDFDocument();
-
-            // Ruta donde se va a guardar el archivo PDF
+            // Generar el PDF usando PDFKit
+            const doc = new PDFDocument({ margin: 50 });
             const ruta = path.join(__dirname, `OrdenPago-${idc}.pdf`);
-            doc.pipe(fs.createWriteStream(ruta));
+            const writeStream = fs.createWriteStream(ruta);
+            doc.pipe(writeStream);
 
-            // Dibujar un cuadro alrededor de la página
-            doc.rect(20, 20, doc.page.width - 40, doc.page.height - 40).stroke();
+            // Encabezado con recuadro
+            doc.rect(40, 40, 520, 120).stroke();  // Dibujar el recuadro
+            doc.image('logo.png', 50, 50, { width: 80 })  // Logo de la empresa
+                .fontSize(20).text('SORTIS-MOTOS', 240, 60, { align: 'right' })
+                .fontSize(12).text('San José de Metán', 240, 90, { align: 'right' })
+                .moveDown();
+                
+                doc.fontSize(13).text('Vendedor: ' + nombreUsuario, { align: 'right' }).moveDown(1);
 
-            // Título del documento
-            doc.fontSize(18).text('SORTIS-MOTOS', { align: 'left', indent: 30 });
-            doc.text('San José de Metán', { indent: 30 });
-            doc.fontSize(18).text('RECIBO DE PAGO', { align: 'center' });
+            doc.fontSize(18).text('RECIBO DE PAGO', { align: 'left' }).moveDown(2);
+            
 
-            // Información de la cuota
-            doc.moveDown().fontSize(12).text(`Identificador: ${idc}`, { align: 'right' });
-            doc.moveDown().text(`Recibí de: ${cuota.apenomb}`);
-            doc.text(`La cantidad de Pesos: $${cuota.importe}`);
-            doc.text(`En concepto de Pago cuota N°: ${cuota.numcuota}`);
-            doc.text(`Fecha de Vencimiento: ${cuota.fechavenc}`);
-            doc.text(`Fecha de Pago: ${cuota.fechapago}`);
-            doc.text(`Estado de la Cuota: ${cuota.estado}`);
-            doc.text(`Observaciones: ${cuota.obs}`);
+            // Recuadro para los detalles del cliente
+            doc.rect(40, 160, 520, 236).stroke();  // Dibujar el recuadro
+            doc.fontSize(12)
+                .text(`Identificador: ${idc}`, 50, 170, { width: 500, align: 'left' })  // Ajustar ancho
+                .text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 50, 190, { width: 500, align: 'left' })
+                .moveDown()
+                .text(`Recibí de: ${cuota.apenomb}`, 50, 210, { width: 500, align: 'left' })  // Ajustar ancho
+                .text(`La cantidad de Pesos: $${cuota.importe}`, 50, 230, { width: 500, align: 'left' })
+                .text(`En concepto de Pago cuota N°: ${cuota.numcuota}`, 50, 250, { width: 500, align: 'left' })
+                .text(`Fecha de Vencimiento: ${new Date(cuota.fechavenc).toLocaleDateString()}`, 50, 270, { width: 500, align: 'left' })
+                .text(`Fecha de Pago: ${new Date(cuota.fechapago).toLocaleDateString()}`, 50, 290, { width: 500, align: 'left' })
+                .text(`Estado de la Cuota: ${cuota.estado}`, 50, 310, { width: 500, align: 'left' })
+                .text(`Observaciones: ${cuota.obs}`, 50, 330, { width: 500, align: 'left' });
 
-            // Firma y otros datos
-            doc.moveDown().text('_________________________', { align: 'center' });
-            doc.text('CAJERO', { align: 'center' });
-            doc.text('_________________________', { align: 'right' });
-            doc.text('FIRMA Y SELLO DE LA ENTIDAD', { align: 'right' });
+            // Línea separadora
+            doc.moveDown().moveTo(50, doc.y).lineTo(550, doc.y).stroke();
 
+            // Tabla de resumen con recuadro
+            doc.moveDown(2).fontSize(12)
+                .text('Resumen del Pago:', { bold: true }).moveDown(0.5);
+
+            const tableTop = doc.y;
+            doc.rect(40, tableTop - 10, 520, 120).stroke();  // Recuadro para la tabla
+
+            // Bordes de la tabla
+            doc.font('Helvetica-Bold');
+            doc.text('Descripción', 50, tableTop, { width: 150, align: 'left' })  // Ajustar ancho
+                .text('Variable', 200, tableTop, { width: 100, align: 'left' })  // Ajustar ancho
+                .text('Importe de Cuota', 300, tableTop, { width: 150, align: 'left' })  // Ajustar ancho
+                .text('Total', 450, tableTop, { width: 100, align: 'left' });  // Ajustar ancho
+
+            // Cuerpo de la tabla
+            doc.font('Helvetica');
+            doc.text('Cuota ' + cuota.numcuota, 50, tableTop + 25, { width: 150, align: 'left' })  // Ajustar ancho
+                .text('1', 200, tableTop + 25, { width: 100, align: 'left' })  // Ajustar ancho
+                .text(`$${cuota.importe}`, 300, tableTop + 25, { width: 150, align: 'left' })  // Ajustar ancho
+                .text(`$${cuota.importe}`, 450, tableTop + 25, { width: 100, align: 'left' });  // Ajustar ancho
+
+       // Total a pagar con recuadro
+doc.moveDown(2);
+
+// Dibuja el recuadro para el total
+doc.rect(350, doc.y - 10, 200, 40).stroke();  // Recuadro para el total
+
+// Texto del total a pagar
+doc.font('Helvetica-Bold')  // Cambia la fuente a negrita
+   .text(`Total a pagar: $${cuota.importe}`, 360, doc.y + 5, { width: 180, align: 'left' });  // Ajusta la posición y el ancho
+
+              
+            
+
+            // Finalizar la escritura del PDF
             doc.end();
 
-            // Enviar el archivo PDF generado al cliente
-            res.download(ruta, `OrdenPago-${idc}.pdf`, (err) => {
-                if (err) {
-                    console.error("Error al descargar el PDF: ", err);
-                }
+            // Esperar a que el archivo se haya cerrado
+            writeStream.on('finish', () => {
+                // Verificar el tamaño del archivo
+                const stats = fs.statSync(ruta);
+                console.log(`Tamaño del archivo PDF: ${stats.size} bytes`);
 
-                // Borrar el archivo temporal después de ser descargado
-                fs.unlinkSync(ruta);
+                // Enviar el archivo PDF generado al cliente
+                res.download(ruta, `OrdenPago-${idc}.pdf`, (err) => {
+                    if (err) {
+                        console.error('Error al descargar el PDF: ', err);
+                    }
+                    // Borrar el archivo temporal después de la descarga
+                    fs.unlink(ruta, (err) => {
+                        if (err) {
+                            console.error('Error al eliminar el PDF: ', err);
+                        }
+                    });
+                });
             });
         } else {
             res.status(404).send('No se encontró la cuota.');
         }
     } catch (err) {
-        console.error("Error al generar el PDF:", err);
+        console.error('Error al generar el PDF:', err);
         res.status(500).send('Error en el servidor.');
     }
 });
 
-// Iniciar servidor
-app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
-});
+
+
+
+
+
+
+
+
+
 
 app.listen(port, '0.0.0.0',() => {
     console.log(`Servidor corriendo en el puerto ${port}`);

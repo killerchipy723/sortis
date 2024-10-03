@@ -204,8 +204,8 @@
                     <div class="form-group">
                         <label for="estado">Estado:</label>
                         <select class="form-control" id="estado">
-                            <option>Pendiente</option>
                             <option>Pagado</option>
+                            <option>Pendiente</option>
                         </select>
                     </div>
                 
@@ -260,47 +260,50 @@
         let idcuotaP = null; // Variable global para almacenar el id de la cuota seleccionada
         
 
-    function verCuotas(idafiliado, idplan) {
-        fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    const cuotasBody = document.getElementById('cuotas-body');
-                    cuotasBody.innerHTML = '';
+        function verCuotas(idafiliado, idplan) {
+    fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                const cuotasBody = document.getElementById('cuotas-body');
+                cuotasBody.innerHTML = '';
 
-                    data.forEach(cuota => {
-                        const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
-                        const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
+                data.forEach(cuota => {
+                    const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
+                    const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
 
-                        cuotasBody.innerHTML += `
-                            <tr>
-                                <td>${cuota.idcuota}</td>
-                                <td>${cuota.numcuota}</td>
-                                <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
-                                <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
-                                <td>${cuota.importe}</td>
-                                <td>${cuota.estado}</td>
-                                <td>
-                                    <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
-                                        Seleccionar
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
+                    cuotasBody.innerHTML += `
+                        <tr>
+                            <td>${cuota.idcuota}</td>
+                            <td>${cuota.numcuota}</td>
+                            <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
+                            <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
+                            <td>${cuota.importe}</td>
+                            <td>${cuota.estado}</td>
+                            <td>
+                                <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
+                                    Seleccionar
+                                </button>
+                               <button type="button" class="btn btn-info" onclick="generarComprobante(${cuota.idcuota})">Comprobante</button>
 
-                    document.getElementById('cuotas-table-container').style.display = 'block';
-                    document.getElementById('form-insert').style.display = 'none';
-                    idAfil = idafiliado;
-                    idPla = idplan;
-                } else {
-                    alert('Cuotas no encontradas.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('cuotas-table-container').style.display = 'block';
+                document.getElementById('form-insert').style.display = 'none';
+                idAfil = idafiliado;
+                idPla = idplan;
+            } else {
+                alert('No hay cuotas para este plan.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
 
     function seleccionarCuota(event) {
         idcuotaP = event.target.getAttribute('data-id');
@@ -419,7 +422,22 @@ window.onload = function() {
     .catch(error => {
         console.error("Error al cargar vendedores:", error);
     });
-        
+
+    
+    function generarComprobante(idcuota) {
+    // Verificamos que el idcuota no sea nulo o indefinido
+    if (!idcuota) {
+        alert('No se puede generar el comprobante porque no se ha identificado la cuota.');
+        return;
+    }
+
+    // Ruta para generar el PDF
+    const url = `/generar-pdf/${idcuota}`;
+
+    // Abrir el PDF en una nueva pestaña del navegador
+    window.open(url, '_blank');
+}
+
     </script>
 </body>
 </html>
