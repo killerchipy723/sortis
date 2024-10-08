@@ -26,8 +26,8 @@ app.use(session({
 
 // Configurar conexión a PostgreSQL
 const pool = new Pool({
-    user: 'mesa.entrada',
-    host: '192.168.100.10',
+    user: 'postgres',
+    host: 'localhost',
     database: 'sistema',
     password: 'admin',
     port: 5432
@@ -57,7 +57,16 @@ app.post('/login', async (req, res) => {
             // Usuario y contraseña correctos 
             req.session.user = result.rows[0]; // Guardar usuario en sesión
             nombreUsuario = result.rows[0].apenomb;
-            res.redirect('/index');
+
+            // Obtener el nivel del usuario
+            const nivelUsuario = result.rows[0].nivel; // Asegúrate de que 'nivel' es el campo correcto
+
+            // Redirigir según el nivel del usuario
+            if (nivelUsuario !== 'Gerente') {
+                res.redirect('/index'); // Redirige a index.html si no es Gerente
+            } else {
+                res.redirect('/registro'); // Redirige a registro.html si es Gerente
+            }
         } else {
             // Usuario o contraseña incorrectos
             res.send(`
@@ -78,6 +87,16 @@ app.get('/index', (req, res) => {
     if (req.session.user) {
         // Enviar el archivo index.html desde la carpeta public
         res.sendFile(path.join(__dirname, 'index.html'));
+    } else {
+        res.redirect('/');
+    }
+});
+
+// Ruta para la página de registro (registro.html)
+app.get('/registro', (req, res) => {
+    if (req.session.user) {
+        // Enviar el archivo registro.html desde la carpeta public
+        res.sendFile(path.join(__dirname, 'registro.html'));
     } else {
         res.redirect('/');
     }
@@ -182,16 +201,44 @@ app.get('/get-cuota/:idCuota', (req, res) => {
     });
 });
 
+// ruta para obtener el id vendedor dependiendo del nombre
+// Ruta para obtener el id vendedor dependiendo del nombre
+app.get('/get-vendedor-id', (req, res) => {
+    const apenomb = req.query.apenomb;
+    const sqlQuery = 'SELECT idvendedor FROM vendedor WHERE apenomb = $1';
+
+    pool.query(sqlQuery, [apenomb], (error, results) => {
+        if (error) {
+            console.error('Error ejecutando la consulta:', error);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        if (results.rows.length > 0) {
+            res.json({ idvendedor: results.rows[0].idvendedor });
+        } else {
+            res.status(404).json({ error: 'Vendedor no encontrado' });
+        }
+    });
+}); 
+
+
+
+
+
 // Ruta para actualizar una cuota
 app.post('/update-cuota', (req, res) => {
     const { idcuota, importe, formapago, nrecibo, fechapago, idvendedor, obs, estado } = req.body;
+
+    // Validar que idvendedor es un número
+    if (!idvendedor || isNaN(idvendedor)) {
+        return res.status(400).send('ID Vendedor no válido');
+    }
 
     console.log('Datos recibidos en el servidor:');
     console.log('ID Cuota:', idcuota);
     console.log('Importe:', importe);
     console.log('Forma de Pago:', formapago);
     console.log('Número de Recibo:', nrecibo);
-    console.log('Fecha de Pago:', fechapago); // Esta ya es en formato YYYY-MM-DD
+    console.log('Fecha de Pago:', fechapago);
     console.log('ID Vendedor:', idvendedor);
     console.log('Observación:', obs);
     console.log('Estado:', estado);
@@ -204,7 +251,7 @@ app.post('/update-cuota', (req, res) => {
         parseFloat(importe),
         formapago,
         parseInt(nrecibo, 10),
-        fechapago, // No convertimos a Date, lo dejamos tal cual (YYYY-MM-DD)
+        fechapago,
         parseInt(idvendedor, 10),
         obs,
         estado,
@@ -219,6 +266,7 @@ app.post('/update-cuota', (req, res) => {
         }
     });
 });
+
 
 
 app.get('/generar-pdf/:idc', async (req, res) => {
@@ -336,6 +384,50 @@ doc.font('Helvetica-Bold')  // Cambia la fuente a negrita
         res.status(500).send('Error en el servidor.');
     }
 });
+
+// Cambia el método a POST para que coincida con la solicitud en el frontend
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Error al cerrar sesión');
+        }
+        // En lugar de redirigir, envía una respuesta de éxito
+        res.status(200).json({ message: 'Sesión cerrada exitosamente' });
+    });
+});
+
+// Ruta para manejar la consulta de recaudación diaria
+app.post('/recaudacion', async (req, res) => {
+    const { fecha } = req.body;
+
+    // Consulta SQL
+    const sql = `
+        SELECT a.apenomb as afiliado, a.dni as doc, 
+               c.numcuota as cuota, c.formapago as fpag, 
+               c.importe as importe, c.nrecibo as nrecibo, 
+               v.apenomb as vendedor 
+        FROM cuotas c 
+        JOIN altaplanafil ap ON c.idalta = ap.idalta 
+        JOIN afiliado a ON ap.idafiliado = a.idafiliado 
+        JOIN vendedor v ON v.idvendedor = c.idvendedor 
+        WHERE c.fechapago = $1 AND c.estado = 'Pagado'
+    `;
+
+    try {
+        // Convierte la fecha a formato adecuado
+        const result = await pool.query(sql, [new Date(fecha).toISOString().split('T')[0]]);
+
+        // Responder con los datos obtenidos
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al consultar la base de datos:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+
+
+
 
 
 

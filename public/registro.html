@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1, h2 {
+            color: #343a40;
+        }
+
+        .container {
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #totalRecaudacion {
+            font-size: 1.2em;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Buscar Recaudación Diaria</h1>
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Consultar</button>
+        </form>
+
+        <h2 class="mt-4">Resultados de la Consulta</h2>
+        <div id="results" style="display: none;">
+            <table class="table table-bordered mt-3" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>ID Cuota</th>
+                        <th>Afiliado</th>
+                        <th>DNI</th>
+                        <th>N° Cuota</th>
+                        <th>Vencimiento</th>
+                        <th>Fecha Pago</th>
+                        <th>Importe</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+            <h4 id="totalRecaudacion"></h4>
+        </div>
+    </div>
+
+    <script>
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        function formatCurrency(value) {
+            return 'AR$ ' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace('.', ',');
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fecha = document.getElementById('fecha').value;
+
+    try {
+        const response = await fetch('/recaudacion', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ fecha }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        displayResults(data);
+    } catch (error) {
+        alert('Error al realizar la consulta: ' + error.message);
+    }
+});
+
+        function displayResults(data) {
+            const resultsBody = document.getElementById('resultsBody');
+            const totalRecaudacion = document.getElementById('totalRecaudacion');
+            resultsBody.innerHTML = '';
+
+            let total = 0;
+            let pagosPorForma = {};
+
+            data.forEach(row => {
+                // Formatear las fechas e importe
+                const formattedVenc = formatDate(row.fvenc);
+                const formattedPag = formatDate(row.fpag);
+                const formattedImporte = formatCurrency(row.importe);
+
+                // Añadir fila a la tabla
+                resultsBody.innerHTML += `
+                    <tr>
+                        <td>${row.idcuota}</td>
+                        <td>${row.afiliado}</td>
+                        <td>${row.doc}</td>
+                        <td>${row.cuota}</td>
+                        <td>${formattedVenc}</td>
+                        <td>${formattedPag}</td>
+                        <td>${formattedImporte}</td>
+                    </tr>
+                `;
+
+                // Sumar el importe total
+                total += row.importe;
+
+                // Agrupar importes por forma de pago
+                if (pagosPorForma[row.formapago]) {
+                    pagosPorForma[row.formapago] += row.importe;
+                } else {
+                    pagosPorForma[row.formapago] = row.importe;
+                }
+            });
+
+            // Mostrar los detalles por forma de pago
+            let detallesPago = '';
+            for (let forma in pagosPorForma) {
+                detallesPago += `${forma}: ${formatCurrency(pagosPorForma[forma])}<br>`;
+            }
+
+            // Mostrar los totales y la recaudación diaria
+            totalRecaudacion.innerHTML = `
+                <h4>Recaudación por Forma de Pago:</h4>
+                ${detallesPago}
+                <h4>Total Recaudación Diaria: ${formatCurrency(total)}</h4>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
