@@ -65,7 +65,7 @@ app.post('/login', async (req, res) => {
         
         if (result.length > 0) {
             // Usuario y contraseña correctos 
-<<<<<<< HEAD
+
             req.session.user = result[0]; // Guardar usuario en sesión
             nombreUsuario = result[0].apenomb;
 
@@ -557,34 +557,7 @@ app.post('/logout', (req, res) => {
     });
 });
 
-// Ruta para manejar la consulta de recaudación diaria
-app.post('/recaudacion', async (req, res) => {
-    const { fecha } = req.body;
 
-    // Consulta SQL
-    const sql = `
-        SELECT a.apenomb as afiliado, a.dni as doc, 
-               c.numcuota as cuota, c.formapago as fpag, 
-               c.importe as importe, c.nrecibo as nrecibo, 
-               v.apenomb as vendedor 
-        FROM cuotas c 
-        JOIN altaplanafil ap ON c.idalta = ap.idalta 
-        JOIN afiliado a ON ap.idafiliado = a.idafiliado 
-        JOIN vendedor v ON v.idvendedor = c.idvendedor 
-        WHERE c.fechapago = $1 AND c.estado = 'Pagado'
-    `;
-
-    try {
-        // Convierte la fecha a formato adecuado
-        const result = await pool.query(sql, [new Date(fecha).toISOString().split('T')[0]]);
-
-        // Responder con los datos obtenidos
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error al consultar la base de datos:', error);
-        res.status(500).send('Error interno del servidor');
-    }
-});
 
 
 
