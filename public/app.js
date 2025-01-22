@@ -48,7 +48,10 @@ app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     }
 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
 let nombreUsuario = ''; 
 
 // Ruta para manejar el inicio de sesión
@@ -65,11 +68,19 @@ app.post('/login', async (req, res) => {
         
         if (result.length > 0) {
             // Usuario y contraseña correctos 
+<<<<<<< HEAD
             req.session.user = result[0]; // Guardar usuario en sesión
             nombreUsuario = result[0].apenomb;
 
             // Obtener el nivel del usuario
             const nivelUsuario = result[0].nivel; // Asegúrate de que 'nivel' es el campo correcto
+=======
+            req.session.user = result.rows[0]; // Guardar usuario en sesión
+            nombreUsuario = result.rows[0].apenomb;
+
+            // Obtener el nivel del usuario
+            const nivelUsuario = result.rows[0].nivel; // Asegúrate de que 'nivel' es el campo correcto
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
 
             // Redirigir según el nivel del usuario
             if (nivelUsuario !== 'Gerente') {
@@ -256,6 +267,7 @@ app.get('/get-cuota/:idCuota', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
 // Ruta para obtener el id vendedor dependiendo del nombre
 app.get('/get-vendedor-id', async (req, res) => {
     const apenomb = req.query.apenomb;
@@ -282,11 +294,32 @@ app.get('/get-vendedor-id', async (req, res) => {
         if (conn) conn.release(); // Liberar la conexión del pool
     }
 });
+=======
+// ruta para obtener el id vendedor dependiendo del nombre
+// Ruta para obtener el id vendedor dependiendo del nombre
+app.get('/get-vendedor-id', (req, res) => {
+    const apenomb = req.query.apenomb;
+    const sqlQuery = 'SELECT idvendedor FROM vendedor WHERE apenomb = $1';
+
+    pool.query(sqlQuery, [apenomb], (error, results) => {
+        if (error) {
+            console.error('Error ejecutando la consulta:', error);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        if (results.rows.length > 0) {
+            res.json({ idvendedor: results.rows[0].idvendedor });
+        } else {
+            res.status(404).json({ error: 'Vendedor no encontrado' });
+        }
+    });
+}); 
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
 
 
 
 
 
+<<<<<<< HEAD
 
 app.post('/update-cuota', async (req, res) => {
     const { idcuota, importe, formapago, nrecibo, fechapago, idvendedor, obs, estado } = req.body;
@@ -304,6 +337,16 @@ app.post('/update-cuota', async (req, res) => {
     if (!fechapago || isNaN(new Date(fechapago).getTime())) {  // Verifica que sea una fecha válida
         return res.status(400).send('Fecha de pago no válida');
     }
+=======
+// Ruta para actualizar una cuota
+app.post('/update-cuota', (req, res) => {
+    const { idcuota, importe, formapago, nrecibo, fechapago, idvendedor, obs, estado } = req.body;
+
+    // Validar que idvendedor es un número
+    if (!idvendedor || isNaN(idvendedor)) {
+        return res.status(400).send('ID Vendedor no válido');
+    }
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
 
     console.log('Datos recibidos en el servidor:');
     console.log('ID Cuota:', idcuota);
@@ -320,6 +363,7 @@ app.post('/update-cuota', async (req, res) => {
                  SET importe = ?, formapago = ?, nrecibo = ?, fechapago = ?, idvendedor = ?, obs = ?, estado = ?
                  WHERE idcuota = ?`;
 
+<<<<<<< HEAD
     let conn;
     try {
         // Obtener una conexión del pool
@@ -339,6 +383,22 @@ app.post('/update-cuota', async (req, res) => {
 
         // Verificar si la actualización afectó alguna fila
         if (result.affectedRows > 0) {
+=======
+    pool.query(sql, [
+        parseFloat(importe),
+        formapago,
+        parseInt(nrecibo, 10),
+        fechapago,
+        parseInt(idvendedor, 10),
+        obs,
+        estado,
+        parseInt(idcuota, 10)
+    ], (err, result) => {
+        if (err) {
+            console.error("Error actualizando cuota:", err);
+            res.status(500).send('Error actualizando cuota');
+        } else {
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
             console.log('Cuota actualizada correctamente');
             res.status(200).send('Cuota actualizada correctamente');
         } else {
@@ -354,9 +414,12 @@ app.post('/update-cuota', async (req, res) => {
 
 
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 104253c692cff5f4683257099736e4bb21603b16
 app.get('/generar-pdf/:idc', async (req, res) => {
     const idc = req.params.idc;
 
@@ -545,7 +608,45 @@ app.post('/recaudacion', async (req, res) => {
     }
 });
 
+// Cambia el método a POST para que coincida con la solicitud en el frontend
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Error al cerrar sesión');
+        }
+        // En lugar de redirigir, envía una respuesta de éxito
+        res.status(200).json({ message: 'Sesión cerrada exitosamente' });
+    });
+});
 
+// Ruta para manejar la consulta de recaudación diaria
+app.post('/recaudacion', async (req, res) => {
+    const { fecha } = req.body;
+
+    // Consulta SQL
+    const sql = `
+        SELECT a.apenomb as afiliado, a.dni as doc, 
+               c.numcuota as cuota, c.formapago as fpag, 
+               c.importe as importe, c.nrecibo as nrecibo, 
+               v.apenomb as vendedor 
+        FROM cuotas c 
+        JOIN altaplanafil ap ON c.idalta = ap.idalta 
+        JOIN afiliado a ON ap.idafiliado = a.idafiliado 
+        JOIN vendedor v ON v.idvendedor = c.idvendedor 
+        WHERE c.fechapago = $1 AND c.estado = 'Pagado'
+    `;
+
+    try {
+        // Convierte la fecha a formato adecuado
+        const result = await pool.query(sql, [new Date(fecha).toISOString().split('T')[0]]);
+
+        // Responder con los datos obtenidos
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al consultar la base de datos:', error);
+        res.status(500).send('Error interno del servidor');
+    }
+});
 
 
 
