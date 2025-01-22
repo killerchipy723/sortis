@@ -1,13 +1,14 @@
-// db.js
-const { Pool } = require('pg');
+const mysql = require('mysql2');
 
-// Configuración de conexión a la base de datos
-const pool = new Pool({
-    user: 'mesa.entrada',
-    host: '192.168.1.3',
-    database: 'sistema',
-    password: 'admin',
-    port: 5432
-});
 
-module.exports = pool;
+const connection = mysql.createPool({
+    host: '200.58.106.156',      
+    user: 'c2710325_killer',           
+    password: 'SistemaIES6021',           
+    database: 'c2710325_sortis'    
+}).promise();               
+
+
+module.exports = connection;
+
+
