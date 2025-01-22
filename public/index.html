@@ -188,8 +188,9 @@
                 
                     <div class="form-group">
                         <label for="fechapago">Fecha de Pago:</label>
-                        <input type="date" class="form-control" id="fechapago" required>
+                        <input type="date" class="form-control" id="fechapago" required readonly>
                     </div>
+                    
                     
                     <div class="form-group">
                         <label for="vendedor">Vendedor:</label>
@@ -318,23 +319,44 @@
         importeInput.focus();
     }
 
+    /// Enviar Formulario al Servidor
 
-    // Manejar el envío del formulario
-    document.getElementById('insert-form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Evitar el envío del formulario de la forma tradicional
 
-    const idcuota = idcuotaP; // Asegúrate de que `idcuotaP` tiene el valor correcto
-    console.log('ID Cuota al enviar el formulario:', idcuota); // Verifica este valor
+
+// Al cargar la página, establece la fecha actual en la zona horaria local (GMT-3)
+window.addEventListener('load', function() {
+    const fechapagoInput = document.getElementById('fechapago');
     
+    const today = new Date();
+    
+    // Obtener la fecha en formato YYYY-MM-DD con hora local
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript son 0-indexados, por eso sumamos 1
+    const day = String(today.getDate()).padStart(2, '0');
+    
+    // Formato de fecha: YYYY-MM-DD
+    const todayFormatted = `${year}-${month}-${day}`;
+    
+    fechapagoInput.value = todayFormatted;
+});
+
+// Manejar el envío del formulario
+document.getElementById('insert-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const idcuota = idcuotaP;
     const importe = document.getElementById('importe').value;
     const formapago = document.getElementById('formapago').value;
     const nrecibo = document.getElementById('recibo').value;
-    const fechapago = document.getElementById('fechapago').value;
+
+    // Obtener la fecha sin ajustar la zona horaria
+    const fechapago = document.getElementById('fechapago').value; // Se queda como YYYY-MM-DD
+
     const vendedorSelect = document.getElementById('vendedor');
     const idvendedor = vendedorSelect.value;
     const obs = document.getElementById('observacion').value;
     const estado = document.getElementById('estado').value;
-    let vende = vendedorSelect;
+
     fetch('/update-cuota', {
         method: 'POST',
         headers: {
@@ -345,7 +367,7 @@
             importe: importe,
             formapago: formapago,
             nrecibo: nrecibo,
-            fechapago: fechapago,
+            fechapago: fechapago, // Enviar la fecha solo como YYYY-MM-DD
             idvendedor: idvendedor,
             obs: obs,
             estado: estado
@@ -355,13 +377,15 @@
     .then(data => {
         alert(data);
         document.getElementById('form-insert').style.display = 'none';
-        verCuotas(idAfil, idPla); 
-        console.log("Nombre del vendedor: ",vende)
+        verCuotas(idAfil, idPla);
     })
     .catch(error => {
         console.error('Error:', error);
     });
 });
+
+
+
 
 
         
@@ -423,7 +447,7 @@ window.onload = function() {
         console.error("Error al cargar vendedores:", error);
     });
 
-    
+    /// Generar PDF
     function generarComprobante(idcuota) {
     // Verificamos que el idcuota no sea nulo o indefinido
     if (!idcuota) {

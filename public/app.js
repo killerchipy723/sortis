@@ -26,8 +26,8 @@ app.use(session({
 
 // Configurar conexión a PostgreSQL
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
+    user: 'mesa.entrada',
+    host: '192.168.100.10',
     database: 'sistema',
     password: 'admin',
     port: 5432
@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
         res.sendFile(path.join(__dirname, 'login.html'));
     }
 });
-let nombreUsuario = '';
+let nombreUsuario = ''; 
 
 // Ruta para manejar el inicio de sesión
 app.post('/login', async (req, res) => {
@@ -185,14 +185,13 @@ app.get('/get-cuota/:idCuota', (req, res) => {
 // Ruta para actualizar una cuota
 app.post('/update-cuota', (req, res) => {
     const { idcuota, importe, formapago, nrecibo, fechapago, idvendedor, obs, estado } = req.body;
-    const fechaElegida = new Date(fechapago);
 
     console.log('Datos recibidos en el servidor:');
     console.log('ID Cuota:', idcuota);
     console.log('Importe:', importe);
     console.log('Forma de Pago:', formapago);
     console.log('Número de Recibo:', nrecibo);
-    console.log('Fecha de Pago:', fechaElegida);
+    console.log('Fecha de Pago:', fechapago); // Esta ya es en formato YYYY-MM-DD
     console.log('ID Vendedor:', idvendedor);
     console.log('Observación:', obs);
     console.log('Estado:', estado);
@@ -205,7 +204,7 @@ app.post('/update-cuota', (req, res) => {
         parseFloat(importe),
         formapago,
         parseInt(nrecibo, 10),
-        fechaElegida,
+        fechapago, // No convertimos a Date, lo dejamos tal cual (YYYY-MM-DD)
         parseInt(idvendedor, 10),
         obs,
         estado,
@@ -214,14 +213,13 @@ app.post('/update-cuota', (req, res) => {
         if (err) {
             console.error("Error actualizando cuota:", err);
             res.status(500).send('Error actualizando cuota');
-            console.log('idCuota: ', idcuota);
-            console.log('IdVendedor: ', idvendedor);
         } else {
             console.log('Cuota actualizada correctamente');
             res.status(200).send('Cuota actualizada correctamente');
         }
     });
 });
+
 
 app.get('/generar-pdf/:idc', async (req, res) => {
     const idc = req.params.idc;
@@ -338,12 +336,6 @@ doc.font('Helvetica-Bold')  // Cambia la fuente a negrita
         res.status(500).send('Error en el servidor.');
     }
 });
-
-
-
-
-
-
 
 
 
