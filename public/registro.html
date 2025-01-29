@@ -16,6 +16,11 @@
             color: #343a40;
         }
 
+        .titulo {
+            color: #eaecee;
+        }
+
+
         .container {
             margin-top: 20px;
             background-color: white;
@@ -24,17 +29,10 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        form {
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
         .btn {
             background-color: #007bff;
             color: white;
+            border-radius: 20px;
         }
 
         .btn:hover {
@@ -45,11 +43,12 @@
             margin-top: 20px;
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9rem;
         }
 
         th, td {
             text-align: center;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #dee2e6;
         }
 
@@ -62,17 +61,73 @@
             background-color: #f2f2f2;
         }
 
+        .responsive-table th, .responsive-table td {
+            padding: 8px;
+            font-size: 0.8rem;
+        }
+
         #totalRecaudacion {
             font-size: 1.2em;
             margin-top: 20px;
             font-weight: bold;
             color: #28a745;
         }
+
+        /* Estilos para la portada dinámica */
+        .hero-section {
+            background: linear-gradient(to right, #007bff, #0056b3);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .hero-section img {
+            width: 200px; /* Ajusta el tamaño de la imagen a tu necesidad */
+            height: auto;
+            animation: fadeIn 2s ease-out;
+        }
+
+        /* Animación en la portada */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Media Queries para dispositivos móviles */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 20px;
+            }
+
+            .hero-section img {
+                width: 150px; /* Ajusta el tamaño para pantallas pequeñas */
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-4">Buscar Recaudación Diaria</h1>
+
+    <!-- Portada dinámica con imagen -->
+    <div class="hero-section">
+       <h1 class="titulo" > SORTIS-MOTOS METAN</h1>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container mt-5">
+        <h2>Seleccione la Fecha a Consultar</h2>
         <form id="searchForm">
             <div class="form-group">
                 <label for="fecha">Fecha:</label>
@@ -83,7 +138,7 @@
 
         <h2 class="mt-4">Resultados de la Consulta</h2>
         <div id="results" style="display: none;">
-            <table class="table table-bordered mt-3" id="resultsTable">
+            <table class="table table-bordered responsive-table mt-3" id="resultsTable">
                 <thead>
                     <tr>
                         <th>ID Cuota</th>
@@ -137,10 +192,10 @@
         function displayResults(data) {
             const resultsBody = document.getElementById('resultsBody');
             const totalRecaudacion = document.getElementById('totalRecaudacion');
-            const totalPorForma = document.getElementById('totalPorForma'); // Nuevo elemento para los totales discriminados.
+            const totalPorForma = document.getElementById('totalPorForma');
 
             resultsBody.innerHTML = '';
-            totalPorForma.innerHTML = ''; // Limpiar contenido previo.
+            totalPorForma.innerHTML = '';
             let total = 0;
 
             // Renderizar detalles de las cuotas
