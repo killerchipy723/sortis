@@ -9,6 +9,7 @@ const PDFDocument = require('pdfkit'); // Importar PDFKit
 const fs = require('fs'); // Importar el módulo de sistema de archivos
 const mysql = require('mysql2');
 const mariadb = require('mariadb');
+const twilio = require('twilio');
 
 
    
@@ -555,6 +556,32 @@ app.post('/logout', (req, res) => {
         // En lugar de redirigir, envía una respuesta de éxito
         res.status(200).json({ message: 'Sesión cerrada exitosamente' });
     });
+});
+
+/// CONFIGURACION DE CHATBOT DE TWILIO 
+
+const accountSid = 'your_account_sid';  // Encuentra este valor en tu cuenta de Twilio
+const authToken = 'your_auth_token';    // Encuentra este valor en tu cuenta de Twilio
+
+// Inicializa el cliente de Twilio
+const client = twilio(accountSid, authToken);
+
+// Ruta para enviar un mensaje de WhatsApp
+app.post('/send-whatsapp', (req, res) => {
+    const { to, body } = req.body; // Número de destino y el cuerpo del mensaje
+
+    client.messages
+        .create({
+            body: body, // El mensaje que quieres enviar
+            from: 'whatsapp:+14155238886', // El número de WhatsApp proporcionado por Twilio
+            to: `whatsapp:${to}` // Número de destino (en formato E.164)
+        })
+        .then(message => {
+            res.json({ message: 'Mensaje enviado', sid: message.sid });
+        })
+        .catch(error => {
+            res.status(500).json({ error: error.message });
+        });
 });
 
 
