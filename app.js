@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Configurar la carpeta de archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname,'public')));
 
 // Configurar express-session para manejar sesiones de usuario
 app.use(session({
@@ -27,20 +27,21 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 3600000 } // 1 hora
-}));
+})); 
 
-
+ 
 
 // Ruta para mostrar la página de login o redirigir a la página principal
 app.get('/', (req, res) => {
     if (req.session.user) {
         // Si el usuario está autenticado, redirige a /index
-        res.redirect('/index');
+        res.redirect('public','/index');
     } else {
         // Si el usuario no está autenticado, muestra la página de login
         res.sendFile(path.join(__dirname, 'login.html'));
     }
 });
+
 
 let nombreUsuario = ''; 
 
@@ -60,6 +61,8 @@ app.post('/login', async (req, res) => {
             // Usuario y contraseña correctos 
 
             req.session.user = result[0]; // Guardar usuario en sesión
+            console.log(req.session); // Verifica que la sesión se está guardando correctamente
+
             nombreUsuario = result[0].apenomb;
 
             // Obtener el nivel del usuario
@@ -67,7 +70,7 @@ app.post('/login', async (req, res) => {
 
             // Redirigir según el nivel del usuario
             if (nivelUsuario !== 'Gerente') {
-                res.redirect('/index'); // Redirige a index.html si no es Gerente
+                res.redirect('login.html'); // Redirige a index.html si no es Gerente
             } else {
                 res.redirect('/registro'); // Redirige a registro.html si es Gerente
             }
@@ -88,12 +91,11 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
 // Ruta para la página principal (index.html)
 app.get('/index', (req, res) => {
     if (req.session.user) {
         // Enviar el archivo index.html desde la carpeta public
-        res.sendFile(path.join(__dirname, 'index.html'));
+        res.sendFile(path.join(__dirname,'public', 'index.html'));
     } else {
         res.redirect('/');
     }
@@ -103,7 +105,7 @@ app.get('/index', (req, res) => {
 app.get('/registro', (req, res) => {
     if (req.session.user) {
         // Enviar el archivo registro.html desde la carpeta public
-        res.sendFile(path.join(__dirname, 'registro.html'));
+        res.sendFile(path.join(__dirname,'public', 'registro.html'));
     } else {
         res.redirect('/');
     }

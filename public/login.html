@@ -1,152 +1,534 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sortis Motos</title>
+    <title>Sortis Motos - Sistema Integral</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-    <link rel="icon" href="/logosolo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" href="logosolo.ico" type="image/x-icon">
 
     <style>
-    body {
-    background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
-    color: white;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 20px;
-}
+        .table-small {
+            max-height: 300px;
+            /* Ajusta la altura máxima según lo necesario */
+            overflow-y: auto;
+            /* Permite el desplazamiento vertical si el contenido excede la altura máxima */
+            font-size: 0.400rem;
+            /* Tamaño de fuente más pequeño para filas más compactas */
+        }
 
-.login-box {
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    padding: 40px;
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
-    width: 100%;
-    max-width: 400px;
-    backdrop-filter: blur(8px);
-}
+        .table-small th,
+        .table-small td {
+            padding: 0.5rem;
+            /* Reduce el padding para filas más compactas */
+        }
 
-.login-box h2 {
-    font-weight: bold;
-    color: white;
-    text-align: center;
-    margin-bottom: 30px;
-}
+        .table thead th {
+            background-color: #007bff;
+            /* Color de fondo azul */
+            color: white;
+            /* Color de texto blanco */
+            text-align: center;
+            /* Centra el texto */
+            font-weight: bold;
+            /* Texto en negrita */
+        }
 
-.form-control {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    width: 100%;
-}
+        .table thead th:hover {
+            background-color: #0056b3;
+            /* Color de fondo al pasar el mouse */
+            cursor: pointer;
+            /* Cambia el cursor al pasar el mouse */
+        }
 
-.form-control:focus {
-    box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.5);
-    background-color: rgba(255, 255, 255, 0.3);
-    color: black;
-}
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
 
-.btn-login {
-    background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    font-weight: bold;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    width: 100%;
-}
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+        }
 
-.btn-login:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 4px 10px rgba(0, 114, 255, 0.5);
-}
+        .navbar-brand {
+            color: white !important;
+        }
 
-.login-footer {
-    text-align: center;
-    margin-top: 20px;
-}
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
 
-.login-footer a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
+        /* Table styles */
+        .table-small {
+            max-height: 400px;
+            /* Ajusta la altura máxima según lo necesario */
+            overflow-y: auto;
+            /* Permite el desplazamiento vertical si el contenido excede la altura máxima */
+            font-size: 0.875rem;
+            /* Tamaño de fuente más pequeño para filas más compactas */
+        }
 
-.login-footer a:hover {
-    color: #a0c4ff;
-}
+        .table thead th {
+            background-color: #007bff;
+            /* Color de fondo azul */
+            color: white;
+            /* Color de texto blanco */
+            text-align: center;
+            /* Centra el texto */
+            font-weight: bold;
+            /* Texto en negrita */
+            border: 1px solid #dee2e6;
+            /* Borde de las celdas de cabecera */
+        }
 
-.alert {
-    display: none;
-}
+        .table tbody td {
+            border: 1px solid #dee2e6;
+            /* Borde de las celdas del cuerpo */
+        }
 
-.idText {
-    margin-left: 80px;
-}
+        .table {
+            border-collapse: collapse;
+            /* Colapsa los bordes para evitar dobles bordes */
+            border-spacing: 0;
+            /* Elimina el espacio entre bordes */
+        }
 
-.portada {
-    width: 100%;
-    max-width: 150px;
-}
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            /* Espaciado interno de celdas */
+        }
 
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .login-box {
-        padding: 20px;
-        width: 90%;
-        max-width: 350px;
-    }
-    .idText {
-        margin-left: 0;
-    }
-}
+        .table thead th:hover {
+            background-color: #0056b3;
+            /* Color de fondo al pasar el mouse */
+            cursor: pointer;
+            /* Cambia el cursor al pasar el mouse */
+        }
 
+        /* Alternar color de fondo de filas */
+        .table tbody tr:nth-of-type(odd) {
+            background-color: #f2f2f2;
+            /* Color de fondo para filas impares */
+        }
 
+        .table tbody tr:nth-of-type(even) {
+            background-color: #ffffff;
+            /* Color de fondo para filas pares */
+        }
+
+        /* Ajustar altura de las filas para tablas */
+        .table {
+            font-size: 0.9rem;
+            /* Tamaño de fuente más pequeño */
+        }
+
+        #logoutButton {
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-color: #dc3545;
+            /* Borde rojo */
+            color: #dc3545;
+            /* Texto rojo */
+        }
+
+        #logoutButton:hover {
+            background-color: #dc3545;
+            /* Fondo rojo al pasar el mouse */
+            color: #fff;
+            /* Texto blanco en hover */
+        }
+
+        #logoutButton i {
+            margin-right: 5px;
+            /* Espacio entre el icono y el texto */
+        }
     </style>
+
 </head>
+
 <body>
-    <img class="portada" src="logo.png" alt="">
-    <div class="login-box">
-  
-        <h3 class="idText">Sortis Motos</h3>
-        <form action="/login" method="POST">
-            <div class="alert alert-danger" id="error-message">Usuario o contraseña incorrectos.</div>
-            <div class="form-group">
-                <label for="username"><i class="fas fa-user"></i> Usuario</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su usuario" required>
+
+    <!-- Navbar -->
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="#">Sortis Motos - Cobro de Cuotas</a>
+        <div class="ml-auto">
+            <span class="text-white" id="nombreUsuario"></span>
+            <button class="btn btn-outline-light ml-3" id="customButton">
+                <i class="fas fa-cogs"></i> Opciones
+            </button>
+            <button class="btn btn-outline-danger ml-3" id="logoutButton">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </div>
+    </nav>
+
+
+    <!-- Código de la tabla de planes y búsqueda de afiliado -->
+    <div class="container">
+        <div class="form-container">
+            <h3>Buscar Afiliado por DNI</h3>
+            <form id="search-form">
+                <div class="form-group">
+                    <label for="dni">DNI del Afiliado:</label>
+                    <input type="text" class="form-control" id="dni" placeholder="Ingrese DNI del afiliado">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="buscarAfiliado()">Buscar</button>
+            </form>
+
+            <div id="plans-table" class="table-responsive table-small" style="display:none;">
+                <h5>Planes del Afiliado</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID_Plan</th>
+                            <th>ID_Afil</th>
+                            <th>Afiliado</th>
+                            <th>DNI</th>
+                            <th>Plan</th>
+                            <th>Cuota</th>
+                            <th>Fecha_Alta</th>
+                            <th>Estado</th>
+                            <th>Acciones</th> <!-- Columna para el botón Seleccionar -->
+                        </tr>
+                    </thead>
+                    <tbody id="plans-body"></tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña" required>
+
+            <div id="cuotas-table-container" class="table-responsive table-small" style="display:none;">
+                <h5>Cuotas del Plan</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Reg</th>
+                            <th>Cuota</th>
+                            <th>Venc</th>
+                            <th>Fech_Pago</th>
+                            <th>Importe</th>
+                            <th>Estado</th>
+                            <th>Acciones</th> <!-- Columna para el botón Seleccionar -->
+                        </tr>
+                    </thead>
+                    <tbody id="cuotas-body"></tbody>
+                </table>
             </div>
-            <button type="submit" class="btn btn-login btn-block">Iniciar Sesión</button>
-            <div class="login-footer">
-                <p>¿Olvidó su contraseña? <a href="#" id="forgot-password-link">Recupérala aquí</a></p>
+
+            <div id="form-insert" class="form-container" style="display: none;">
+                <h3>Datos de la cuota</h3>
+                <form id="insert-form">
+                    <input type="hidden" id="idcuota"> <!-- El ID de la cuota a actualizar -->
+
+                    <div class="form-group">
+                        <label for="importe">Importe:</label>
+                        <input type="number" class="form-control" id="importe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formapago">Forma de Pago:</label>
+                        <select class="form-control" id="formapago">
+                            <option>Efectivo</option>
+                            <option>Transferencia</option>
+                            <option>S.O.E.M</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recibo">Número de Recibo:</label>
+                        <input type="number" class="form-control" id="recibo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechapago">Fecha de Pago:</label>
+                        <input type="date" class="form-control" id="fechapago" required readonly>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="vendedor">Vendedor:</label>
+                        <select class="form-control" id="vendedor" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observacion">Observación:</label>
+                        <textarea class="form-control" id="observacion"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estado">Estado:</label>
+                        <select class="form-control" id="estado">
+                            <option>Pagado</option>
+                            <option>Pendiente</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" id="actualizar">Registrar Pago</button>
+
+                </form>
 
             </div>
-        </form>
+        </div>
     </div>
+    <input type="hidden" id="idvendedor" name="idvendedor">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        document.getElementById('forgot-password-link').addEventListener('click', function(event) {
-            event.preventDefault(); // Evita el comportamiento predeterminado del enlace
-            alert('Para recuperar tu contraseña pidele al administrador de Sortis Motos');
+        let idAfil = null;
+        let idPla = null;
+
+        function buscarAfiliado() {
+            const dni = document.getElementById('dni').value;
+            fetch(`/buscar-afiliado?dni=${dni}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const plansBody = document.getElementById('plans-body');
+                        plansBody.innerHTML = '';
+                        data.forEach(plan => {
+                            plansBody.innerHTML += `
+                                <tr>
+                                    <td>${plan.idafiliado}</td>
+                                    <td>${plan.idplan}</td>
+                                    <td>${plan.afiliado}</td>
+                                    <td>${plan.dni}</td>
+                                    <td>${plan.plan}</td>
+                                    <td>${plan.cantcuotas}</td>
+                                    <td>${new Date(plan.fecha_alta).toLocaleDateString()}</td>
+                                    <td>${plan.estado}</td>
+                                    <td><button class="btn btn-info" onclick="verCuotas(${plan.idafiliado}, ${plan.idplan})">Seleccionar</button></td>
+                                </tr>
+                            `;
+                        });
+
+                        document.getElementById('plans-table').style.display = 'block';
+                    } else {
+                        alert('Afiliado no encontrado.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+
+        let idcuotaP = null; // Variable global para almacenar el id de la cuota seleccionada
+
+        // Manejar el clic del botón de cierre de sesión
+        document.getElementById('logoutButton').addEventListener('click', function () {
+            fetch('/logout', { method: 'POST' }) // Asegúrate de que el método sea POST
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/'; // Redirige a la página de inicio de sesión
+                    } else {
+                        alert('Error al cerrar sesión.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         });
+
+
+
+
+        function verCuotas(idafiliado, idplan) {
+            fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const cuotasBody = document.getElementById('cuotas-body');
+                        cuotasBody.innerHTML = '';
+
+                        data.forEach(cuota => {
+                            const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
+                            const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
+
+                            cuotasBody.innerHTML += `
+                        <tr>
+                            <td>${cuota.idcuota}</td>
+                            <td>${cuota.numcuota}</td>
+                            <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
+                            <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
+                            <td>${cuota.importe}</td>
+                            <td>${cuota.estado}</td>
+                            <td>
+                                <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
+                                    Seleccionar
+                                </button>
+                               <button type="button" class="btn btn-info" onclick="generarComprobante(${cuota.idcuota})">Comprobante</button>
+
+                            </td>
+                        </tr>
+                    `;
+                        });
+
+                        document.getElementById('cuotas-table-container').style.display = 'block';
+                        document.getElementById('form-insert').style.display = 'none';
+                        idAfil = idafiliado;
+                        idPla = idplan;
+                    } else {
+                        alert('No hay cuotas para este plan.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+
+        function seleccionarCuota(event) {
+            idcuotaP = event.target.getAttribute('data-id');
+
+            // Mostrar el formulario y hacer scroll hacia él
+            const formInsert = document.getElementById('form-insert');
+            formInsert.style.display = 'block';
+            formInsert.scrollIntoView({ behavior: 'smooth' }); // Hace scroll hasta el formulario de manera suave
+
+            // Colocar el foco en el campo de Importe
+            const importeInput = document.getElementById('importe');
+            importeInput.focus();
+        }
+
+        /// Enviar Formulario al Servidor
+
+
+
+        // Al cargar la página, establece la fecha actual en la zona horaria local (GMT-3)
+        window.addEventListener('load', function () {
+            const fechapagoInput = document.getElementById('fechapago');
+
+            const today = new Date();
+
+            // Obtener la fecha en formato YYYY-MM-DD con hora local
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript son 0-indexados, por eso sumamos 1
+            const day = String(today.getDate()).padStart(2, '0');
+
+            // Formato de fecha: YYYY-MM-DD
+            const todayFormatted = `${year}-${month}-${day}`;
+
+            fechapagoInput.value = todayFormatted;
+        });
+
+        // Manejar el envío del formulario
+        document.getElementById('insert-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const idcuota = idcuotaP;
+    const importe = document.getElementById('importe').value;
+    const formapago = document.getElementById('formapago').value;
+    const nrecibo = document.getElementById('recibo').value;
+    const fechapago = document.getElementById('fechapago').value; // Se queda como YYYY-MM-DD
+    const idvendedor = document.getElementById('idvendedor').value; // Captura el ID del vendedor
+    const obs = document.getElementById('observacion').value;
+    const estado = document.getElementById('estado').value;
+
+    console.log('ID Vendedor antes de enviar:', idvendedor); // Agregado para verificar
+
+    fetch('/update-cuota', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            idcuota: idcuota,
+            importe: importe,
+            formapago: formapago,
+            nrecibo: nrecibo,
+            fechapago: fechapago,
+            idvendedor: idvendedor,
+            obs: obs,
+            estado: estado
+        })
+    })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            document.getElementById('form-insert').style.display = 'none';
+            verCuotas(idAfil, idPla);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+});
+
+
+
+
+
+
+
+
+        window.onload = function () {
+            fetch('/get-user-data')
+                .then(response => response.json())
+                .then(data => {
+                    const usuarioLogueado = data.apenomb;
+
+                    // Mostrar el nombre del usuario en el navbar
+                    document.getElementById('nombreUsuario').innerText = `Bienvenido, ${usuarioLogueado}`;
+
+                    // Obtener el combobox de vendedor y añadir la opción del usuario logueado
+                    const vendedorSelect = document.getElementById('vendedor');
+
+                    let option = document.createElement('option');
+                    option.value = usuarioLogueado; // Esta será temporal
+                    option.textContent = usuarioLogueado;
+                    option.selected = true;
+                    vendedorSelect.appendChild(option);
+
+                    // Deshabilitar el select para evitar que el usuario elija otro vendedor
+                    vendedorSelect.disabled = true;
+
+                    // Obtener el idvendedor del usuario logueado
+                    return fetch(`/get-vendedor-id?apenomb=${encodeURIComponent(usuarioLogueado)}`);
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.idvendedor) {
+                        console.log('ID del Vendedor:', data.idvendedor);
+                        // Guardar el ID en el campo oculto
+                        document.getElementById('idvendedor').value = data.idvendedor; // Asegúrate de que esto sea un número
+                    } else {
+                        console.error('No se encontró el ID del vendedor.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        };
+
+
+
+        /// Generar PDF
+        function generarComprobante(idcuota) {
+            // Verificamos que el idcuota no sea nulo o indefinido
+            if (!idcuota) {
+                alert('No se puede generar el comprobante porque no se ha identificado la cuota.');
+                return;
+            }
+
+            // Ruta para generar el PDF
+            const url = `/generar-pdf/${idcuota}`;
+
+            // Abrir el PDF en una nueva pestaña del navegador
+            window.open(url, '_blank');
+        }
+
     </script>
 </body>
+
 </html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sortis Motos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/logosolo.ico" type="image/x-icon">
+
+    <style>
+    body {
+    background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.login-box {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(8px);
+}
+
+.login-box h2 {
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-control {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+}
+
+.form-control:focus {
+    box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
+    color: black;
+}
+
+.btn-login {
+    background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: bold;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+}
+
+.btn-login:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(0, 114, 255, 0.5);
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-footer a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.login-footer a:hover {
+    color: #a0c4ff;
+}
+
+.alert {
+    display: none;
+}
+
+.idText {
+    margin-left: 80px;
+}
+
+.portada {
+    width: 100%;
+    max-width: 150px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .login-box {
+        padding: 20px;
+        width: 90%;
+        max-width: 350px;
+    }
+    .idText {
+        margin-left: 0;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <img class="portada" src="img/logo.png" alt="">
+    <div class="login-box">
+  
+        <h3 class="idText">Sortis Motos</h3>
+        <form action="/login" method="POST">
+            <div class="alert alert-danger" id="error-message">Usuario o contraseña incorrectos.</div>
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su usuario" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña" required>
+            </div>
+            <button type="submit" class="btn btn-login btn-block">Iniciar Sesión</button>
+            <div class="login-footer">
+                <p>¿Olvidó su contraseña? <a href="#" id="forgot-password-link">Recupérala aquí</a></p>
+
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('forgot-password-link').addEventListener('click', function(event) {
+            event.preventDefault(); // Evita el comportamiento predeterminado del enlace
+            alert('Para recuperar tu contraseña pidele al administrador de Sortis Motos');
+        });
+    </script>
+</body>
+</html>

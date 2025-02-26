@@ -2,8 +2,8 @@
   "name": "sortis-motos",
   "version": "1.0.0",
   "scripts": {
-    "start": "node public/app.js",
-    "dev": "nodemon public/app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "body-parser": "^1.20.3",
