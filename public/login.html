@@ -9,7 +9,7 @@
     <link rel="icon" href="/logosolo.ico" type="image/x-icon">
 
     <style>
-       body {
+      body {
     background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
     color: white;
     height: 100vh;
@@ -17,6 +17,8 @@
     align-items: center;
     justify-content: center;
     font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
 .login-box {
@@ -42,6 +44,7 @@
     border: none;
     border-radius: 5px;
     padding: 10px;
+    width: 100%;
 }
 
 .form-control:focus {
@@ -57,6 +60,7 @@
     padding: 10px;
     font-weight: bold;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
 }
 
 .btn-login:hover {
@@ -84,13 +88,27 @@
     display: none;
 }
 
-.idText{
+.idText {
     margin-left: 80px;
 }
 
-.portada{
-    width: 10%;
+.portada {
+    width: 100%;
+    max-width: 150px;
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    .login-box {
+        padding: 30px;
+    }
+    .idText {
+        margin-left: 0;
+    }
+}
+
     </style>
 </head>
 <body>
