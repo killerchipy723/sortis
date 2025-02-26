@@ -29,15 +29,7 @@ app.use(session({
     cookie: { maxAge: 3600000 } // 1 hora
 }));
 
-/*Configurar conexión a MariaDB
-const pool = mariadb.createPool({
-    host: '200.58.106.156', // Dirección del servidor MariaDB
-    user: 'c2710325_killer', // Usuario de la base de datos
-    database: 'c2710325_sortis', // Nombre de la base de datos
-    password: 'SistemaIES6021', // Contraseña de la base de datos
-    port: 3306, // Puerto de la base de datos
-    connectionLimit: 5000 // Límite de conexiones en el pool
-});*/
+
 
 // Ruta para mostrar la página de login o redirigir a la página principal
 app.get('/', (req, res) => {
@@ -557,41 +549,6 @@ app.post('/logout', (req, res) => {
         res.status(200).json({ message: 'Sesión cerrada exitosamente' });
     });
 });
-
-/// CONFIGURACION DE CHATBOT DE TWILIO 
-
-const accountSid = 'your_account_sid';  // Encuentra este valor en tu cuenta de Twilio
-const authToken = 'your_auth_token';    // Encuentra este valor en tu cuenta de Twilio
-
-// Inicializa el cliente de Twilio
-const client = twilio(accountSid, authToken);
-
-// Ruta para enviar un mensaje de WhatsApp
-app.post('/send-whatsapp', (req, res) => {
-    const { to, body } = req.body; // Número de destino y el cuerpo del mensaje
-
-    client.messages
-        .create({
-            body: body, // El mensaje que quieres enviar
-            from: 'whatsapp:+14155238886', // El número de WhatsApp proporcionado por Twilio
-            to: `whatsapp:${to}` // Número de destino (en formato E.164)
-        })
-        .then(message => {
-            res.json({ message: 'Mensaje enviado', sid: message.sid });
-        })
-        .catch(error => {
-            res.status(500).json({ error: error.message });
-        });
-});
-
-
-
-
-
-
-
-
-
 
 
 app.listen(port, '0.0.0.0',() => {
