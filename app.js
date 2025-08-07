@@ -486,60 +486,71 @@ app.post('/logout', (req, res) => {
 app.post('/recaudacion', async (req, res) => {
     const { fecha } = req.body;
 
-    // Verificar si 'fecha' se proporciona correctamente
     if (!fecha) {
         return res.status(400).json({ error: 'La fecha es obligatoria.' });
     }
 
-    const sql = `
-        SELECT 
-            c.idcuota AS idcuota, 
-            a.apenomb AS afiliado, 
-            a.dni AS doc, 
-            c.numcuota AS cuota, 
-            c.fechavenc AS fvenc, 
-            c.fechapago AS fpag, 
-            c.formapago AS forma, 
-            c.importe AS importe
-        FROM cuotas c 
-        JOIN altaplanafil ap ON c.idalta = ap.idalta 
-        JOIN afiliado a ON ap.idafiliado = a.idafiliado 
-        WHERE c.fechapago = ? AND c.estado = 'Pagado'
-    `;
-
-    const sqlTotales = `
-        SELECT 
-            c.formapago AS forma, 
-            SUM(c.importe) AS total
-        FROM cuotas c 
-        WHERE c.fechapago = ? AND c.estado = 'Pagado'
-        GROUP BY c.formapago
-    `;
-
-    let connection;
     try {
-        // Formatear fecha para evitar problemas de compatibilidad
-        const formattedDate = new Date(fecha).toISOString().split('T')[0];
+        // Convertir y validar la fecha
+        const parsedDate = new Date(fecha);
+        if (isNaN(parsedDate)) {
+            return res.status(400).json({ error: 'La fecha proporcionada no es válida.' });
+        }
 
-        // Obtener la conexión del pool
-        connection = await db.getConnection();
+        // Crear rango de fecha con horas
+        const startDate = new Date(parsedDate);
+        startDate.setHours(0, 0, 0, 0);
 
-        // Ejecutar las consultas de forma asincrónica
-        const [result] = await connection.query(sql, [formattedDate]);
-        const [totales] = await connection.query(sqlTotales, [formattedDate]);
+        const endDate = new Date(parsedDate);
+        endDate.setHours(23, 59, 59, 999);
 
-        // Enviar los resultados como JSON
-        res.json({
-            detalles: result, // No necesitas `.rows` en MariaDB
-            totales: totales  // No necesitas `.rows` en MariaDB
+        const sqlDetalles = `
+            SELECT 
+                c.idcuota AS idcuota, 
+                a.apenomb AS afiliado, 
+                a.dni AS doc, 
+                c.numcuota AS cuota, 
+                c.fechavenc AS fvenc, 
+                c.fechapago AS fpag, 
+                c.formapago AS forma, 
+                c.importe AS importe
+            FROM cuotas c 
+            JOIN altaplanafil ap ON c.idalta = ap.idalta 
+            JOIN afiliado a ON ap.idafiliado = a.idafiliado 
+            WHERE c.fechapago BETWEEN ? AND ? AND c.estado = 'Pagado'
+        `;
+
+        const sqlTotales = `
+            SELECT 
+                c.formapago AS forma, 
+                SUM(c.importe) AS total
+            FROM cuotas c 
+            WHERE c.fechapago BETWEEN ? AND ? AND c.estado = 'Pagado'
+            GROUP BY c.formapago
+        `;
+
+        const connection = await db.getConnection();
+
+        // Ejecutar la primera consulta
+        const [detalles] = await connection.query(sqlDetalles, [startDate, endDate]);
+
+        // Ejecutar la segunda consulta
+        const [totales] = await connection.query(sqlTotales, [startDate, endDate]);
+
+        connection.release();
+
+        return res.json({
+            detalles: detalles,
+            totales: totales
         });
+
     } catch (error) {
         console.error('Error al consultar la base de datos:', error);
-        res.status(500).send('Error interno del servidor');
-    } finally {
-        if (connection) connection.release(); // Liberar la conexión
+        return res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+
 
 // Cambia el método a POST para que coincida con la solicitud en el frontend
 app.post('/logout', (req, res) => {

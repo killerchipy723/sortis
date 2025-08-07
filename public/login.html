@@ -431,7 +431,17 @@
     const importe = document.getElementById('importe').value;
     const formapago = document.getElementById('formapago').value;
     const nrecibo = document.getElementById('recibo').value;
-    const fechapago = document.getElementById('fechapago').value; // Se queda como YYYY-MM-DD
+   const now = new Date();
+
+const day = String(now.getDate()).padStart(2, '0');
+const month = String(now.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
+const year = now.getFullYear();
+
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+
+// Formato: DD-MM-YYYY HH:MM
+const fechapago = `${day}-${month}-${year} ${hours}:${minutes}`;
     const idvendedor = document.getElementById('idvendedor').value; // Captura el ID del vendedor
     const obs = document.getElementById('observacion').value;
     const estado = document.getElementById('estado').value;
