@@ -505,7 +505,7 @@ app.post('/recaudacion', async (req, res) => {
         const endDate = new Date(parsedDate);
         endDate.setHours(23, 59, 59, 999);
 
-        const sqlDetalles = `
+        const sqlDetalles = ` 
             SELECT 
                 c.idcuota AS idcuota, 
                 a.apenomb AS afiliado, 
