@@ -168,7 +168,7 @@
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
             const year = date.getFullYear();
-            return `${day+1}-${month}-${year}`;
+            return `${day}-${month}-${year}`;
         }
 
         function formatCurrency(value) {

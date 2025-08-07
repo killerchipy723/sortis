@@ -492,7 +492,8 @@ app.post('/recaudacion', async (req, res) => {
 
     try {
         // Convertir y validar la fecha
-        const parsedDate = new Date(fecha);
+       const parsedDate = new Date(fecha + 'T03:00:00'); // Ajustamos para Argentina (UTC-3)
+
         if (isNaN(parsedDate)) {
             return res.status(400).json({ error: 'La fecha proporcionada no es válida.' });
         }
