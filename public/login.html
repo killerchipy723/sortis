@@ -233,7 +233,7 @@
 
                     <div class="form-group">
                         <label for="importe">Importe:</label>
-                        <input type="number" class="form-control" id="importe" required>
+                        <input type="number" class="form-control" id="importe" required readonly>
                     </div>
 
                     <div class="form-group">
@@ -345,62 +345,86 @@
 
 
         function verCuotas(idafiliado, idplan) {
-            fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        const cuotasBody = document.getElementById('cuotas-body');
-                        cuotasBody.innerHTML = '';
+    fetch(`/get-cuotas?idafiliado=${idafiliado}&idplan=${idplan}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                const cuotasBody = document.getElementById('cuotas-body');
+                cuotasBody.innerHTML = '';
 
-                        data.forEach(cuota => {
-                            const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
-                            const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
+                data.forEach(cuota => {
+                    const botonClass = cuota.estado === 'Pagado' ? 'btn-danger' : 'btn-primary';
+                    const botonDisabled = cuota.estado === 'Pagado' ? 'disabled' : '';
 
-                            cuotasBody.innerHTML += `
+                    const fechPagoFormatted = cuota.fechapago
+                        ? new Date(cuota.fechapago).toLocaleDateString()
+                        : '';
+
+                    cuotasBody.innerHTML += `
                         <tr>
                             <td>${cuota.idcuota}</td>
                             <td>${cuota.numcuota}</td>
                             <td>${new Date(cuota.fechavenc).toLocaleDateString()}</td>
-                            <td>${new Date(cuota.fechapago).toLocaleDateString()}</td>
-                            <td>${cuota.importe}</td>
+                            <td>${fechPagoFormatted}</td>
+                            <td><!-- El importe se obtendrá dinámicamente --></td>
                             <td>${cuota.estado}</td>
                             <td>
-                                <button class="btn ${botonClass}" ${botonDisabled} data-id="${cuota.idcuota}" onclick="seleccionarCuota(event)">
+                                <button class="btn ${botonClass}" ${botonDisabled}
+                                    data-id="${cuota.idcuota}"
+                                    data-idplan="${idplan}"
+                                    onclick="seleccionarCuota(event)">
                                     Seleccionar
                                 </button>
-                               <button type="button" class="btn btn-info" onclick="generarComprobante(${cuota.idcuota})">Comprobante</button>
-
+                                <button type="button" class="btn btn-info"
+                                    onclick="generarComprobante(${cuota.idcuota})">
+                                    Comprobante
+                                </button>
                             </td>
                         </tr>
                     `;
-                        });
-
-                        document.getElementById('cuotas-table-container').style.display = 'block';
-                        document.getElementById('form-insert').style.display = 'none';
-                        idAfil = idafiliado;
-                        idPla = idplan;
-                    } else {
-                        alert('No hay cuotas para este plan.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
                 });
-        }
+
+                document.getElementById('cuotas-table-container').style.display = 'block';
+                document.getElementById('form-insert').style.display = 'none';
+
+                idAfil = idafiliado;
+                idPla = idplan;
+            } else {
+                alert('No hay cuotas para este plan.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
 
 
-        function seleccionarCuota(event) {
-            idcuotaP = event.target.getAttribute('data-id');
+function seleccionarCuota(event) {
+    const btn = event.target;
+    const idcuota = btn.getAttribute('data-id');
+    const idplan = btn.getAttribute('data-idplan');
+    idcuotaP = idcuota;
 
-            // Mostrar el formulario y hacer scroll hacia él
-            const formInsert = document.getElementById('form-insert');
-            formInsert.style.display = 'block';
-            formInsert.scrollIntoView({ behavior: 'smooth' }); // Hace scroll hasta el formulario de manera suave
+    // Mostrar formulario
+    document.getElementById('form-insert').style.display = 'block';
+    document.getElementById('form-insert').scrollIntoView({ behavior: 'smooth' });
 
-            // Colocar el foco en el campo de Importe
-            const importeInput = document.getElementById('importe');
-            importeInput.focus();
-        }
+    // Obtener importe del plan
+    fetch(`/get-importe-plan/${idplan}`)
+        .then(r => r.json())
+        .then(data => {
+            console.log('Importe del plan:', data);
+            const impInput = document.getElementById('importe');
+            impInput.value = data.importe;
+            impInput.readOnly = true;
+        })
+        .catch(err => console.error('Error al obtener importe del plan:', err));
+}
+
+
+
+
+
 
         /// Enviar Formulario al Servidor
 
@@ -431,17 +455,7 @@
     const importe = document.getElementById('importe').value;
     const formapago = document.getElementById('formapago').value;
     const nrecibo = document.getElementById('recibo').value;
-   const now = new Date();
-
-const day = String(now.getDate()).padStart(2, '0');
-const month = String(now.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
-const year = now.getFullYear();
-
-const hours = String(now.getHours()).padStart(2, '0');
-const minutes = String(now.getMinutes()).padStart(2, '0');
-
-// Formato: DD-MM-YYYY HH:MM
-const fechapago = `${day}-${month}-${year} ${hours}:${minutes}`;
+    const fechapago = document.getElementById('fechapago').value; // Se queda como YYYY-MM-DD
     const idvendedor = document.getElementById('idvendedor').value; // Captura el ID del vendedor
     const obs = document.getElementById('observacion').value;
     const estado = document.getElementById('estado').value;

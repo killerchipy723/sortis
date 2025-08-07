@@ -200,6 +200,28 @@ app.get('/get-cuotas', async (req, res) => {
     }
 });
 
+// Ruta para obtener el importe y setearlo 
+app.get('/get-importe-plan/:idplan', async (req, res) => {
+    const idplan = parseInt(req.params.idplan, 10);
+    if (isNaN(idplan)) return res.status(400).json({ error: 'ID de plan inválido' });
+
+    let conn;
+    try {
+        conn = await db.getConnection();
+        const [rows] = await conn.query(
+            `SELECT importe FROM plan WHERE idplan = ?`,
+            [idplan]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Plan no encontrado' });
+        res.json({ importe: rows[0].importe });
+    } catch (error) {
+        console.error('Error al obtener importe del plan:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    } finally {
+        conn.release();
+    }
+});
+
 
 
 // Ruta para obtener vendedores
@@ -324,7 +346,7 @@ app.post('/update-cuota', async (req, res) => {
         // Ejecutar la consulta de actualización
         const [result] = await conn.query(sql, [
             parseFloat(importe),
-            formapago,
+            formapago, 
             parseInt(nrecibo, 10),
             fechapago,
             parseInt(idvendedor, 10),
