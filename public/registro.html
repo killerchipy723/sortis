@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,8 @@
             font-family: 'Arial', sans-serif;
         }
 
-        h1, h2 {
+        h1,
+        h2 {
             color: #343a40;
         }
 
@@ -48,7 +50,8 @@
             font-size: 0.9rem;
         }
 
-        th, td {
+        th,
+        td {
             text-align: center;
             padding: 12px;
             border: 1px solid #dee2e6;
@@ -63,7 +66,8 @@
             background-color: #f2f2f2;
         }
 
-        .responsive-table th, .responsive-table td {
+        .responsive-table th,
+        .responsive-table td {
             padding: 8px;
             font-size: 0.8rem;
         }
@@ -87,7 +91,8 @@
         }
 
         .hero-section img {
-            width: 200px; /* Ajusta el tamaño de la imagen a tu necesidad */
+            width: 200px;
+            /* Ajusta el tamaño de la imagen a tu necesidad */
             height: auto;
             animation: fadeIn 2s ease-out;
         }
@@ -98,6 +103,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             100% {
                 opacity: 1;
                 transform: translateY(0);
@@ -111,7 +117,8 @@
             }
 
             .hero-section img {
-                width: 150px; /* Ajusta el tamaño para pantallas pequeñas */
+                width: 150px;
+                /* Ajusta el tamaño para pantallas pequeñas */
             }
 
             table {
@@ -120,11 +127,12 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Portada dinámica con imagen -->
     <div class="hero-section">
-       <h1 class="titulo" > SORTIS-MOTOS METAN</h1>
+        <h1 class="titulo"> SORTIS-MOTOS METAN</h1>
     </div>
 
     <!-- Contenedor principal -->
@@ -165,10 +173,15 @@
     <script>
         function formatDate(dateString) {
             const date = new Date(dateString);
+
             const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses son 0-indexados
             const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
+
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
         }
 
         function formatCurrency(value) {
@@ -230,4 +243,5 @@
         }
     </script>
 </body>
+
 </html>

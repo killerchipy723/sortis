@@ -447,20 +447,26 @@ function seleccionarCuota(event) {
             fechapagoInput.value = todayFormatted;
         });
 
-        // Manejar el envío del formulario
-        document.getElementById('insert-form').addEventListener('submit', function (event) {
+       // Manejar el envío del formulario
+document.getElementById('insert-form').addEventListener('submit', function (event) {
     event.preventDefault();
 
     const idcuota = idcuotaP;
     const importe = document.getElementById('importe').value;
     const formapago = document.getElementById('formapago').value;
     const nrecibo = document.getElementById('recibo').value;
-    const fechapago = document.getElementById('fechapago').value; // Se queda como YYYY-MM-DD
-    const idvendedor = document.getElementById('idvendedor').value; // Captura el ID del vendedor
+    const idvendedor = document.getElementById('idvendedor').value;
     const obs = document.getElementById('observacion').value;
     const estado = document.getElementById('estado').value;
 
-    console.log('ID Vendedor antes de enviar:', idvendedor); // Agregado para verificar
+    // Obtener fecha y hora actual en zona horaria local (Argentina GMT-3)
+    const now = new Date();
+    const offset = now.getTimezoneOffset(); // en minutos
+    now.setMinutes(now.getMinutes() - offset); // ajustar al GMT-0
+    const fechaHoraActual = now.toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:MM:SS'
+
+    console.log('Fecha y hora actual enviada:', fechaHoraActual);
+    console.log('ID Vendedor antes de enviar:', idvendedor);
 
     fetch('/update-cuota', {
         method: 'POST',
@@ -472,22 +478,23 @@ function seleccionarCuota(event) {
             importe: importe,
             formapago: formapago,
             nrecibo: nrecibo,
-            fechapago: fechapago,
+            fechapago: fechaHoraActual,
             idvendedor: idvendedor,
             obs: obs,
             estado: estado
         })
     })
-        .then(response => response.text())
-        .then(data => {
-            alert(data);
-            document.getElementById('form-insert').style.display = 'none';
-            verCuotas(idAfil, idPla);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+    .then(response => response.text())
+    .then(data => {
+        alert(data);
+        document.getElementById('form-insert').style.display = 'none';
+        verCuotas(idAfil, idPla);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 });
+
 
 
 
