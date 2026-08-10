@@ -55,7 +55,7 @@ app.post('/login', async (req, res) => {
         conn = await db.getConnection(); // Ahora db es un pool, se obtiene la conexión desde aquí
         
         // Consulta SQL para verificar usuario y clave
-        const [result] = await conn.query('SELECT * FROM usuarios WHERE usuario = ? AND clave = ?', [username, password]);
+        const [result] = await conn.query('SELECT * FROM usuarios WHERE usuario = ? AND clave = ? AND estado = 'Activo'', [username, password]);
         
         if (result.length > 0) {
             // Usuario y contraseña correctos 
