@@ -78,7 +78,7 @@ app.post('/login', async (req, res) => {
             // Usuario o contraseña incorrectos
             res.send(`
                 <script>
-                    alert("Usuario o contraseña incorrectos. Intente nuevamente.");
+                    alert("Datos Incorrectos, o puede que el usuario no esté Autorizado para utilizar el Sistema Sortis Motos");
                     window.location.href = "/";
                 </script>
             `);
